@@ -1,41 +1,45 @@
 #!/bin/bash
 #SBATCH --job-name=geomodel-qm9
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=2
-#SBATCH --gres=gpu:2
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
-#SBATCH --time=4-00:00:00
-#SBATCH --output=logs/qm9_%j.log
-#SBATCH --error=logs/qm9_%j.err
+#SBATCH --ntasks-per-node=1
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=48G
+#SBATCH --time=7-00:00:00
+#SBATCH --output=logs/slurm_%j.log
+#SBATCH --error=logs/slurm_%j.err
+#SBATCH --partition=plafnet2
 
-# ── Environment ──────────────────────────────────────────────────────────────
-echo "Job ID: $SLURM_JOB_ID"
-echo "Node:   $(hostname)"
-echo "GPUs:   $CUDA_VISIBLE_DEVICES"
-echo "Start:  $(date)"
+# ── Setup ──────────────────────────────────────────────────────────────────
+echo "=========================================="
+echo "  geo-model QM9 Training"
+echo "  Job ID  : $SLURM_JOB_ID"
+echo "  Node    : $(hostname)"
+echo "  GPU     : $CUDA_VISIBLE_DEVICES"
+echo "  Start   : $(date)"
+echo "=========================================="
 
-cd /scratch/nishanth.r/nextmol_experiment/geo-model
-mkdir -p logs
+REPO=/scratch/nishanth.r/nextmol_experiment/geo-model
+VENV=/scratch/nishanth.r/nextmol_experiment/GeoDiff/venv
 
-# Activate venv (adjust path if needed)
-source /scratch/nishanth.r/nextmol_experiment/GeoDiff/venv/bin/activate
+cd $REPO
+mkdir -p logs checkpoints/qm9
 
-# ── Data preparation (run once; skip if already done) ─────────────────────
-DATA_DIR="data/qm9"
-if [ ! -f "${DATA_DIR}/qm9_heavy.jsonl" ]; then
-    echo "Preparing QM9 data..."
-    python geomodel/data/prepare/prepare_qm9.py \
-        --raw-dir ${DATA_DIR}/raw \
-        --out-dir ${DATA_DIR}
+source ${VENV}/bin/activate
+
+# Find latest checkpoint to resume from (if any)
+LATEST=$(ls -t checkpoints/qm9/epoch_*.pt 2>/dev/null | head -1)
+RESUME_ARG=""
+if [ -n "$LATEST" ]; then
+    echo "Resuming from: $LATEST"
+    RESUME_ARG="--resume $LATEST"
 fi
 
-# ── Training (DDP, 2 GPUs) ────────────────────────────────────────────────
-torchrun \
-    --nproc_per_node=2 \
-    --master_port=29500 \
-    scripts/train_ddp.py \
+# ── Train ──────────────────────────────────────────────────────────────────
+python3 scripts/train.py \
     --config configs/training/qm9.yaml \
-    2>&1 | tee logs/qm9_train_${SLURM_JOB_ID}.log
+    $RESUME_ARG \
+    2>&1 | tee logs/train_qm9_${SLURM_JOB_ID}.log
 
+echo ""
 echo "Done: $(date)"
