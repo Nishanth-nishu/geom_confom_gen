@@ -9,6 +9,8 @@
 #SBATCH --output=logs/slurm_%j.log
 #SBATCH --error=logs/slurm_%j.err
 #SBATCH --partition=plafnet2
+#SBATCH --account=plafnet2
+#SBATCH --qos=plafnet2
 
 # ── Setup ──────────────────────────────────────────────────────────────────
 echo "=========================================="
