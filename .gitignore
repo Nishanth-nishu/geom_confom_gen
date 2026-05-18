@@ -16,6 +16,7 @@ env/
 data/qm9/processed/
 data/geom_drugs/processed/
 data/**/*.jsonl
+!data/qm9/qm9_heavy.jsonl   # 23 MB — committed directly (under GitHub 100MB limit)
 data/**/*.pkl
 data/**/*.sdf
 data/**/*.pt
