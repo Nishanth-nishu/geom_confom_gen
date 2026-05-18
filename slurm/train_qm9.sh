@@ -111,7 +111,7 @@ else
 fi
 
 cd "${REPO_DIR}"
-python scripts/train.py --config "${CONFIG}" ${RESUME_ARG}
+python -u scripts/train.py --config "${CONFIG}" ${RESUME_ARG}
 
 echo ""
 echo "Training complete: $(date)"
