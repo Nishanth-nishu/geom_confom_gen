@@ -107,11 +107,12 @@ def main():
     data_cfg = cfg["data"]
     train_loader = DataLoader(
         train_ds,
-        batch_size=data_cfg.get("batch_size", 128),
+        batch_size=data_cfg.get("batch_size", 256),
         shuffle=True,
-        num_workers=data_cfg.get("num_workers", 4),
+        num_workers=data_cfg.get("num_workers", 8),
         collate_fn=collate_fn,
         pin_memory=True,
+        persistent_workers=True,
         drop_last=True,
     )
     val_loader = DataLoader(

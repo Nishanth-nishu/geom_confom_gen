@@ -11,8 +11,8 @@ data:
   max_atoms: 29                      # GeoDiff QM9 includes molecules up to 29 heavy atoms
   train_split: 0.9
   seed: 42
-  batch_size: 128
-  num_workers: 4
+  batch_size: 1024                 # RTX 3090 24GB — 4.3M param model handles large batches easily
+  num_workers: 8                   # More workers to keep GPU fed
 
 diffusion:
   num_timesteps: 1000

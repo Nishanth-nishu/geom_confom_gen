@@ -281,7 +281,7 @@ class Trainer:
 
     def load_checkpoint(self, path: str) -> None:
         """Resume training from a saved checkpoint."""
-        state = torch.load(path, map_location=self.device)
+        state = torch.load(path, map_location=self.device, weights_only=False)  # own checkpoints, safe
         self.model_raw.load_state_dict(state["model_state"])
         self.optimizer.load_state_dict(state["optimizer_state"])
         self.scheduler.load_state_dict(state["scheduler_state"])
