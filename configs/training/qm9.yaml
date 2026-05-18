@@ -1,0 +1,56 @@
+# QM9 training configuration
+# 131,967 small molecules (≤9 heavy atoms), 1 conformer each.
+# Reference: Ramakrishnan et al., Sci. Data 2014.
+
+model_config: configs/model/egnn_256.yaml
+
+data:
+  name: qm9
+  root: /scratch/nishanth.r/nextmol_experiment/geo-model/data/qm9
+  processed_file: qm9_heavy.jsonl   # Converted from GeoDiff PKL via convert_geodiff_pkl.py
+  max_atoms: 29                      # GeoDiff QM9 includes molecules up to 29 heavy atoms
+  train_split: 0.9
+  seed: 42
+  batch_size: 128
+  num_workers: 4
+
+diffusion:
+  num_timesteps: 1000
+  noise_schedule: cosine            # Nichol & Dhariwal, ICML 2021
+  s: 0.008                          # Cosine schedule offset
+
+loss:
+  geo_weight: 0.5                   # λ_geo — geometry constraint loss weight
+  geo_t_fraction: 0.3               # τ — only apply geo loss when t < T*τ
+  min_snr_gamma: 5.0                # γ for Min-SNR weighting (Hang et al. 2023)
+  include_torsions: false           # QM9 has no rotatable bonds; skip torsion loss
+
+optimizer:
+  type: adamw
+  lr: 5.0e-4
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.999]
+
+scheduler:
+  type: cosine_with_warmup
+  warmup_epochs: 10
+  min_lr: 1.0e-6
+
+training:
+  max_epochs: 1000
+  gradient_clip: 1.0
+  log_every: 10                     # Log metrics every N epochs
+  val_every: 100                    # Run validation every N epochs (expensive, keep sparse)
+  val_n_mols: 100                   # Fewer val molecules for speed
+  val_n_gen: 10                     # Number of generated conformers per val mol
+  val_num_steps: 20                 # DDIM steps during validation (20 is enough to judge quality)
+
+checkpointing:
+  save_dir: checkpoints/qm9
+  save_every: 50                    # Save checkpoint every N epochs
+  keep_best: true                   # Always keep best MAT-R checkpoint
+
+logging:
+  use_wandb: false
+  project: geo-model
+  run_name: qm9_egnn256

@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual envs
+venv/
+.venv/
+env/
+
+# Data (large files — store on cluster, not Git)
+data/qm9/processed/
+data/geom_drugs/processed/
+data/**/*.jsonl
+data/**/*.pkl
+data/**/*.sdf
+data/**/*.pt
+
+# Checkpoints (too large for Git)
+checkpoints/
+
+# Logs & outputs
+logs/
+wandb/
+*.log
+outputs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store

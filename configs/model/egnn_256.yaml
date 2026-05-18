@@ -1,0 +1,15 @@
+# Model architecture configuration
+# Aligned with EDM (Hoogeboom et al., ICML 2022) dimensions.
+# Reference: Table 1, EDM paper — hidden_dim=256, num_layers=9.
+
+hidden_dim: 256          # Node feature dimension (EDM: 256)
+num_layers: 9            # Number of EGNN message passing layers (EDM: 9)
+num_rbf: 50              # RBF Gaussian centers for distance encoding (SchNet/GeoDiff: 50)
+d_min: 0.5               # Minimum distance for RBF (Angstrom)
+d_max: 10.0              # Maximum distance for RBF (Angstrom, covers drug molecules)
+time_dim: 256            # Sinusoidal timestep embedding dimension
+num_atom_types: 54       # Supports H(1) to I(53), index 0 unused
+num_bond_types: 5        # 0=none, 1=single, 2=double, 3=triple, 4=aromatic
+use_attention: true      # Attention gate on message aggregation
+dropout: 0.1             # Dropout in edge/node MLPs
+num_timesteps: 1000      # Diffusion timesteps T

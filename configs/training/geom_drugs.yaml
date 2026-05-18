@@ -1,0 +1,54 @@
+# GEOM-Drugs training configuration
+# 304,466 drug-like molecules with multiple conformers.
+# Reference: Axelrod & Gomez-Bombarelli, Sci. Data 2022.
+# Key differences from QM9: larger molecules (20-50+ atoms), flexible torsions.
+
+model_config: configs/model/egnn_256.yaml
+
+data:
+  name: geom_drugs
+  root: data/geom_drugs
+  processed_file: geom_drugs_processed.pkl
+  max_atoms: 100                    # Drug molecules can be large
+  batch_size: 64                    # Smaller batch due to larger molecules
+  num_workers: 4
+
+diffusion:
+  num_timesteps: 1000
+  noise_schedule: cosine
+  s: 0.008
+
+loss:
+  geo_weight: 0.5
+  geo_t_fraction: 0.3
+  min_snr_gamma: 5.0
+  include_torsions: true            # GEOM-Drugs has flexible torsions — supervise them
+
+optimizer:
+  type: adamw
+  lr: 1.0e-4                        # Lower LR for larger molecules
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.999]
+
+scheduler:
+  type: cosine_with_warmup
+  warmup_epochs: 20
+  min_lr: 1.0e-6
+
+training:
+  max_epochs: 500
+  gradient_clip: 1.0
+  log_every: 10
+  val_every: 25
+  val_n_mols: 200
+  val_n_gen: 10                     # 2× conformers per ref molecule (GeoDiff protocol)
+
+checkpointing:
+  save_dir: checkpoints/geom_drugs
+  save_every: 25
+  keep_best: true
+
+logging:
+  use_wandb: false
+  project: geo-model
+  run_name: geom_drugs_egnn256
