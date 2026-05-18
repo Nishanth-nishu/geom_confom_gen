@@ -58,6 +58,11 @@ if [ ! -f "${VENV_DIR}/bin/activate" ]; then
     python3 -m venv "${VENV_DIR}"
     source "${VENV_DIR}/bin/activate"
     pip install --upgrade pip -q
+    echo "      Installing PyTorch (CUDA 12.4)..."
+    pip install torch==2.5.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 -q
+    echo "      Installing PyG..."
+    pip install torch-scatter torch-sparse torch-cluster torch-geometric -f https://data.pyg.org/whl/torch-2.5.1+cu124.html -q
+    echo "      Installing other requirements..."
     pip install -r "${REPO_DIR}/requirements.txt" -q
     pip install -e "${REPO_DIR}" -q
     echo "      Venv ready."
